@@ -1,0 +1,124 @@
+.statistics {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.statistics h2 {
+  font-size: var(--text-2xl);
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background-color: var(--background-color);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card h3 {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-number {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.stat-card.high .stat-number {
+  color: var(--danger-color);
+}
+
+.stat-card.medium .stat-number {
+  color: var(--warning-color);
+}
+
+.stat-card.low .stat-number {
+  color: var(--success-color);
+}
+
+.recent-incidents {
+  background-color: var(--background-color);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.recent-incidents h3 {
+  font-size: var(--text-lg);
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: var(--card-background);
+  border-radius: 6px;
+  transition: var(--transition);
+}
+
+.recent-item:hover {
+  background-color: var(--hover-overlay);
+}
+
+.severity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.severity-dot.high {
+  background-color: var(--danger-color);
+}
+
+.severity-dot.medium {
+  background-color: var(--warning-color);
+}
+
+.severity-dot.low {
+  background-color: var(--success-color);
+}
+
+.recent-title {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.recent-date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
