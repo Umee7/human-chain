@@ -8,7 +8,7 @@ export type SortOrder = "newest" | "oldest";
 
 // Main incident interface
 export interface Incident {
-  id: string; // Unique identifier for the incident
+  _id: string; // Unique identifier for the incident
   title: string; // Short description of the incident
   description: string; // Detailed description of what happened
   severity: Severity; // Impact level of the incident

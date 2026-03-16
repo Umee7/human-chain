@@ -8,17 +8,17 @@ interface StatisticsProps {
 export const Statistics = ({ incidents }: StatisticsProps) => {
   const totalIncidents = incidents.length;
   const highSeverityCount = incidents.filter(
-    (i) => i.severity === "High"
+    (i) => i.severity === "High",
   ).length;
   const mediumSeverityCount = incidents.filter(
-    (i) => i.severity === "Medium"
+    (i) => i.severity === "Medium",
   ).length;
   const lowSeverityCount = incidents.filter((i) => i.severity === "Low").length;
 
   const recentIncidents = incidents
     .sort(
       (a, b) =>
-        new Date(b.reportedDate).getTime() - new Date(a.reportedDate).getTime()
+        new Date(b.reportedDate).getTime() - new Date(a.reportedDate).getTime(),
     )
     .slice(0, 5);
 
@@ -48,7 +48,7 @@ export const Statistics = ({ incidents }: StatisticsProps) => {
         <h3>Recent Incidents</h3>
         <div className="recent-list">
           {recentIncidents.map((incident) => (
-            <div key={incident.id} className="recent-item">
+            <div key={incident._id} className="recent-item">
               <span
                 className={`severity-dot ${incident.severity.toLowerCase()}`}
               />

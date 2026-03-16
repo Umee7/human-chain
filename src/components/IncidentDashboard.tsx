@@ -1,20 +1,14 @@
-import { useState, useEffect } from "react"; // ← added useEffect
-import { Incident, Severity, SortOrder } from "../types/incident";
-import { mockIncidents } from "../data/mockIncidents";
+import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Severity, SortOrder } from "../types/incident";
 import { Statistics } from "./Statistics";
 import "./IncidentDashboard.css";
 
 export const IncidentDashboard = () => {
-  const [incidents, setIncidents] = useState<Incident[]>(() => {
-    // ← lazy init
-    const stored = localStorage.getItem("incidents");
-    return stored ? JSON.parse(stored) : mockIncidents;
-  });
-
-  useEffect(() => {
-    // ← persist on change
-    localStorage.setItem("incidents", JSON.stringify(incidents));
-  }, [incidents]);
+  const incidents = useQuery(api.incidents.get) ?? [];
+  const addIncident = useMutation(api.incidents.add);
+  const removeIncident = useMutation(api.incidents.remove);
 
   const [selectedSeverity, setSelectedSeverity] = useState<Severity | "All">(
     "All",
@@ -25,10 +19,13 @@ export const IncidentDashboard = () => {
   );
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null); // ← added
 
-  const [newIncident, setNewIncident] = useState<
-    Omit<Incident, "id" | "reportedDate">
-  >({
+  const [newIncident, setNewIncident] = useState<{
+    title: string;
+    description: string;
+    severity: Severity;
+  }>({
     title: "",
     description: "",
     severity: "Low",
@@ -50,16 +47,24 @@ export const IncidentDashboard = () => {
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newIncidentWithId: Incident = {
+    await addIncident({
       ...newIncident,
-      id: Date.now().toString(),
       reportedDate: new Date().toISOString(),
-    };
-    setIncidents([...incidents, newIncidentWithId]);
+    });
     setNewIncident({ title: "", description: "", severity: "Low" });
     setShowForm(false);
+  };
+
+  const handleDelete = (id: string) => {
+    // ← updated
+    if (confirmDeleteId === id) {
+      removeIncident({ id: id as any });
+      setConfirmDeleteId(null);
+    } else {
+      setConfirmDeleteId(id);
+    }
   };
 
   const handleCloseForm = () => {
@@ -124,7 +129,7 @@ export const IncidentDashboard = () => {
       <div className={`dashboard-content ${showForm ? "blurred" : ""}`}>
         <div className="incidents-list">
           {filteredIncidents.map((incident) => (
-            <div key={incident.id} className="incident-card">
+            <div key={incident._id} className="incident-card">
               <div className="incident-header">
                 <h3>{incident.title}</h3>
                 <span
@@ -138,19 +143,29 @@ export const IncidentDashboard = () => {
                   Reported:{" "}
                   {new Date(incident.reportedDate).toLocaleDateString()}
                 </span>
-                <button
-                  onClick={() =>
-                    setExpandedIncidentId(
-                      expandedIncidentId === incident.id ? null : incident.id,
-                    )
-                  }
-                >
-                  {expandedIncidentId === incident.id
-                    ? "Hide Details"
-                    : "View Details"}
-                </button>
+                <div className="incident-actions">
+                  <button
+                    onClick={() =>
+                      setExpandedIncidentId(
+                        expandedIncidentId === incident._id
+                          ? null
+                          : incident._id,
+                      )
+                    }
+                  >
+                    {expandedIncidentId === incident._id
+                      ? "Hide Details"
+                      : "View Details"}
+                  </button>
+                  <button // ← updated
+                    className={`delete-btn ${confirmDeleteId === incident._id ? "confirm" : ""}`}
+                    onClick={() => handleDelete(incident._id)}
+                  >
+                    {confirmDeleteId === incident._id ? "Confirm?" : "Delete"}
+                  </button>
+                </div>
               </div>
-              {expandedIncidentId === incident.id && (
+              {expandedIncidentId === incident._id && (
                 <div className="incident-description">
                   <p>{incident.description}</p>
                 </div>

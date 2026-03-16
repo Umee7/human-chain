@@ -524,3 +524,23 @@
 .close-form-btn:active {
   transform: rotate(90deg) scale(0.95);
 }
+
+.incident-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.delete-btn {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+.delete-btn.confirm {
+  background-color: #ef4444;
+  color: white;
+}
