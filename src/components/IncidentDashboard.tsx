@@ -1,24 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ← added useEffect
 import { Incident, Severity, SortOrder } from "../types/incident";
 import { mockIncidents } from "../data/mockIncidents";
 import { Statistics } from "./Statistics";
 import "./IncidentDashboard.css";
 
-// Main dashboard component for displaying and managing AI safety incidents
 export const IncidentDashboard = () => {
-  // State management for incidents and filters
-  const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
+  const [incidents, setIncidents] = useState<Incident[]>(() => {
+    // ← lazy init
+    const stored = localStorage.getItem("incidents");
+    return stored ? JSON.parse(stored) : mockIncidents;
+  });
+
+  useEffect(() => {
+    // ← persist on change
+    localStorage.setItem("incidents", JSON.stringify(incidents));
+  }, [incidents]);
+
   const [selectedSeverity, setSelectedSeverity] = useState<Severity | "All">(
-    "All"
+    "All",
   );
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [expandedIncidentId, setExpandedIncidentId] = useState<string | null>(
-    null
+    null,
   );
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Form state for new incident
   const [newIncident, setNewIncident] = useState<
     Omit<Incident, "id" | "reportedDate">
   >({
@@ -27,7 +34,6 @@ export const IncidentDashboard = () => {
     severity: "Low",
   });
 
-  // Filter and sort incidents based on user selections
   const filteredIncidents = incidents
     .filter((incident) => {
       const matchesSeverity =
@@ -44,7 +50,6 @@ export const IncidentDashboard = () => {
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
 
-  // Handle form submission for new incidents
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newIncidentWithId: Incident = {
@@ -57,13 +62,11 @@ export const IncidentDashboard = () => {
     setShowForm(false);
   };
 
-  // Close form and reset form state
   const handleCloseForm = () => {
     setShowForm(false);
     setNewIncident({ title: "", description: "", severity: "Low" });
   };
 
-  // Prevent form from closing when clicking inside
   const handleFormClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -71,10 +74,7 @@ export const IncidentDashboard = () => {
   return (
     <div className="dashboard">
       <h1>AI Safety Incident Dashboard</h1>
-
       <Statistics incidents={incidents} />
-
-      {/* Controls section for filtering and sorting */}
       <div className="controls">
         <div className="search-controls">
           <input
@@ -85,7 +85,6 @@ export const IncidentDashboard = () => {
             className="search-input"
           />
         </div>
-
         <div className="filter-controls">
           <label>
             Filter by Severity:
@@ -102,7 +101,6 @@ export const IncidentDashboard = () => {
             </select>
           </label>
         </div>
-
         <div className="sort-controls">
           <label>
             Sort by Date:
@@ -115,7 +113,6 @@ export const IncidentDashboard = () => {
             </select>
           </label>
         </div>
-
         <button
           className="toggle-form-btn"
           onClick={() => setShowForm(!showForm)}
@@ -124,7 +121,6 @@ export const IncidentDashboard = () => {
         </button>
       </div>
 
-      {/* Main content area with incident cards */}
       <div className={`dashboard-content ${showForm ? "blurred" : ""}`}>
         <div className="incidents-list">
           {filteredIncidents.map((incident) => (
@@ -145,7 +141,7 @@ export const IncidentDashboard = () => {
                 <button
                   onClick={() =>
                     setExpandedIncidentId(
-                      expandedIncidentId === incident.id ? null : incident.id
+                      expandedIncidentId === incident.id ? null : incident.id,
                     )
                   }
                 >
@@ -164,7 +160,6 @@ export const IncidentDashboard = () => {
         </div>
       </div>
 
-      {/* Modal form for new incidents */}
       {showForm && (
         <div className="form-overlay" onClick={handleCloseForm}>
           <form
